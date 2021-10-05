@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hhx.mybatis.dao.EmployeeDao">
+    <resultMap id="myEmp" type="cn.hhx.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+    </resultMap>
+
+    <select id="getEmpById" resultMap="myEmp">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
+    <select id="getAllEmployee" resultMap="myEmp">
+        select *
+        from employee
+    </select>
+</mapper>
