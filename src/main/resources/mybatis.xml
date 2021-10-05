@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <!--引入外部文件
+        resource：引入类路径下
+        url：引入网络或磁盘路径下-->
+    <properties resource="jdbc.properties"></properties>
+
+    <!--包含很多设置项-->
+    <settings>
+        <!--开启驼峰映射-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <!--起别名，别名不区分大小写-->
+    <typeAliases>
+        <!--
+            一般为映射文件中返回的类型设置别名
+            type:类的全类名
+            alias:别名，不写的话会使用默认别名，为类名小写-->
+        <!--        <typeAlias type="cn.hhx.mybatis.bean.Employee" alias="emp"></typeAlias>-->
+
+        <!--package:批量起别名,为某个包下的所有类起别名，默认为类名小写-->
+        <package name="cn.hhx.mybatis.bean"/>
+        <!--批量起别名情况下，可以使用@Alias注解为某个类指定新的别名-->
+    </typeAliases>
+
+    <!--   配置多种环境，default指定使用某种环境，可以达到快速切换某种环境-->
+    <environments default="developer">
+        <!--配置具体的mysql的环境，id为唯一标识
+            必须有两个标签
+            1、transactionManager:事务管理器
+            1.1、type:事务管理器的类型:JDBC(JdbcTransactionFactory),MANAGED(ManagedTransactionFactory)
+                可以通过实现TransactionFactory接口实现自定义事务管理器,类的全类名
+            2、dataSource:数据源
+            2.1、type:数据源类型，UNPOOLED(UnpooledDataSourceFactory),POOLED(PooledDataSourceFactory)使用连接池,JNDI(JNDIDataSourceFactory)
+                可以通过实现DataSourceFactory接口实现自定义数据源管理器,类的全类名
+
+            -->
+        <!--测试环境-->
+        <environment id="test">
+            <transactionManager type="JDBC"></transactionManager>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url"
+                          value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+
+        <!--开发环境-->
+        <environment id="developer">
+            <!--配置事务的类型-->
+            <transactionManager type="JDBC"></transactionManager>
+            <!--配置连接池-->
+            <dataSource type="POOLED">
+                <!--配置连接数据库的4个基本信息-->
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url"
+                          value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!--多数据库厂商，得到数据库厂商的标识(数据库驱动中的getDatabaseProductName())，mybatis根据这个执行不同的sql，是驱动自带的
+        Mysql,Oracle,SQL server,xxx-->
+    <databaseIdProvider type="DB_VENDOR">
+        <!--为不同厂商起别名-->
+        <property name="MySQL" value="mysql"/>
+        <property name="Oracle" value="oracle"/>
+        <property name="SQL server" value="sqlserver"/>
+    </databaseIdProvider>
+
+    <!--指定映射配置文件的位置，映射配置文件指的是每个dao独立的配置文件-->
+    <mappers>
+        <!--resource:类路径，
+            url:网络路径或者磁盘路径下的
+            class:注册接口，使用全类名
+                  1、sql映射文件必须与接口同名并在同一目录下
+                  2、使用注解写在接口上
+            -->
+        <mapper resource="sqlmap/employeeDao.xml"/>
+<!--        <mapper class="cn.hhx.mybatis.dao.EmployeeDaoAnnotation"/>-->
+
+        <!--批量注册，填入包名，包下的注解版接口都会注册进去-->
+<!--                <package name="cn.hhx.mybatis.dao"/>-->
+
+    </mappers>
+</configuration>
