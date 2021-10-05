@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hhx.mybatis.dao.DepartmentDao">
+<!--    <cache eviction="FIFO" flushInterval="600000" readOnly="false" size="1024"></cache>-->
+
+
+    <resultMap id="myDept" type="cn.hhx.mybatis.bean.Department">
+        <id column="id" property="id"/>
+        <result column="dept_name" property="deptName"/>
+    </resultMap>
+
+    <select id="getDeptById" resultMap="myDept">
+        select *
+        from department
+        where id = #{id}
+    </select>
+</mapper>

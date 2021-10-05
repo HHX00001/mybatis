@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>账户列表</title>
+</head>
+<body>
+<h1 align="center">账户列表为</h1>
+<div align="center">
+    <table border="1">
+        <tr>
+            <th>账户id</th>
+            <th>账户姓名</th>
+            <th>账户余额</th>
+        </tr>
+        <tr th:each="account:${accountList}">
+            <td th:text="${account.id}"></td>
+            <td th:text="${account.name}"></td>
+            <td th:text="${account.money}"></td>
+        </tr>
+        <tr>
+            <td><a th:href="@{/transfer}">转账</a></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

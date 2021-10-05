@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hhx.mybatis.dao.EmployeeDao">
+
+    <!--自定义javaBean封装规则
+        type：自定义规则的java类型
+        id:用来被别人的resultMap引用-->
+    <resultMap id="myEmp" type="cn.hhx.mybatis.bean.Employee">
+        <!--id:指定主键的封装规则
+            column:指定哪一列
+            property:指定对应的javaBean属性
+            -->
+        <id column="id" property="id"/>
+
+        <!--定义普通列-->
+        <result column="employee_name" property="employeeName"/>
+
+        <!--其他列不指定会自动封装，比如<setting name="mapUnderscoreToCamelCase" value="true"/>，会自动将列名对应java的驼峰命名规则
+            但是一般建议用了resultMap就写全了-->
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+    </resultMap>
+
+    <select id="getEmpById" resultMap="myEmp">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
+    <!--resultMap的功能体现
+        场景：查询过employee的同时查出相应的部门信息
+        需要联合查询
+    -->
+    <!--第一种方法-->
+    <resultMap id="myEmpAndDept1" type="cn.hhx.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+
+        <result column="dept_id" property="dept.id"/>
+        <result column="dept_name" property="dept.deptName"/>
+    </resultMap>
+
+    <!--第二种方法-->
+    <resultMap id="myEmpAndDept2" type="cn.hhx.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+
+        <!--association可以指定联合查询的javaBean对象
+            property指定哪个"属性"是联合的对象(如此resultMap的employee类型对象的dept属性指定department类型的对象)
+            javaType指定"属性"的对象类型
+            相当于一个大resultMap包含了一个小resultMap-->
+        <association property="dept" javaType="cn.hhx.mybatis.bean.Department">
+            <id column="dept_id" property="id"/>
+            <result column="dept_name" property="deptName"/>
+        </association>
+    </resultMap>
+
+
+    <select id="getEmpAndDeptById" resultMap="myEmpAndDept2">
+        select e.*, d.dept_name
+        from employee e,
+             department d
+        where e.id = d.id
+          and e.id = #{id};
+    </select>
+
+
+    <!--使用association进行分段查询
+        1、先按照员工id查询员工信息
+        2、根据员工信息中的部门id去部门表查出部门信息
+        3、部门设置到员工中-->
+    <resultMap id="myEmpAndEmpBystep" type="cn.hhx.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+        <!--定义关联对象的封装规则
+            且关系为一的一方
+            流程：使用select属性中的方法
+            传入参数为column属性的值查出结果
+            封装成某类型对象赋值给property中指定的属性值-->
+        <!--可以使用延迟加载
+            意义：部门信息不是每次都要使用，可以在我们查询部门信息的时候再去使用该方法
+            在分段查询的基础上
+            在全局配置中的settings设置-->
+        <association property="dept" select="cn.hhx.mybatis.dao.DepartmentDao.getDeptById" column="dept_id">
+        </association>
+    </resultMap>
+    <select id="getEmpAndDeptByIdByStep" resultMap="myEmpAndEmpBystep">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
+    <!--返回一个泛型是emp类型的list-->
+    <select id="getEmpListByDeptId" resultMap="myEmp">
+        select *
+        from employee
+        where dept_id = #{deptId}
+    </select>
+
+    <!--<discriminator javaType="">
+        <case value=""></case>
+    </discriminator>
+        鉴别器：根据某列值改变封装行为
+        封装employee：
+                查出是女生就，就把部门信息查出来，否则不查询
+                如果是男生，把name赋值给email
+    -->
+    <resultMap id="myDisEmp" type="cn.hhx.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+
+        <!--column要判定的列名
+            javaType：列值对应的java类型，mybatis起好了别名-->
+        <discriminator javaType="string" column="gender">
+            <!--如果是女生的话-->
+            <case value="0" resultType="cn.hhx.mybatis.bean.Employee">
+                <association property="dept" select="cn.hhx.mybatis.dao.DepartmentDao.getDeptById" column="dept_id">
+                </association>
+            </case>
+            <!--如果是男生的话-->
+            <case value="1" resultType="cn.hhx.mybatis.bean.Employee">
+                <id column="id" property="id"/>
+                <result column="employee_name" property="employeeName"/>
+                <result column="employee_name" property="email"/>
+                <result column="gender" property="gender"/>
+            </case>
+
+        </discriminator>
+    </resultMap>
+
+    <select id="getEmpAndDeptByIdDis" resultMap="myDisEmp">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hhx.mybatis.dao.EmployeeMapper">
+  <resultMap id="BaseResultMap" type="cn.hhx.mybatis.bean.Employee">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="employee_name" jdbcType="VARCHAR" property="employeeName" />
+    <result column="gender" jdbcType="CHAR" property="gender" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="dept_id" jdbcType="INTEGER" property="deptId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from employee
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.hhx.mybatis.bean.Employee">
+    insert into employee (id, employee_name, gender, 
+      email, dept_id)
+    values (#{id,jdbcType=INTEGER}, #{employeeName,jdbcType=VARCHAR}, #{gender,jdbcType=CHAR}, 
+      #{email,jdbcType=VARCHAR}, #{deptId,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="cn.hhx.mybatis.bean.Employee">
+    update employee
+    set employee_name = #{employeeName,jdbcType=VARCHAR},
+      gender = #{gender,jdbcType=CHAR},
+      email = #{email,jdbcType=VARCHAR},
+      dept_id = #{deptId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, employee_name, gender, email, dept_id
+    from employee
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, employee_name, gender, email, dept_id
+    from employee
+  </select>
+</mapper>

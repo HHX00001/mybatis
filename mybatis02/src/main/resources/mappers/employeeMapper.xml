@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hhx.mybatis.dao.EmployeeDao">
+
+    <select id="selectOneEmployeeById" resultType="employee">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
+    <!--多参数传入-->
+    <select id="selectOneEmployeeByIdAndName" resultType="employee">
+        select *
+        from employee
+        where id = #{id}
+          and employee_name = #{employeeName}
+    </select>
+
+    <!--map传值-->
+    <select id="seletOneEmployeeByMap" resultType="employee">
+        select *
+        <!--分库分表-->
+        from ${tableName}
+        where id = #{id}
+        and employee_name = #{employeeName}
+    </select>
+
+    <insert id="insertOneEmployee" parameterType="employee" useGeneratedKeys="true" keyProperty="id">
+        insert into employee(employee_name, gender, email)
+        values (#{employeeName}, #{gender}, #{email})
+    </insert>
+
+    <update id="updateOneEmployee" parameterType="employee">
+        update employee
+        set employee_name=#{employeeName},
+            gender=#{gender},
+            email=#{email}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOneEmployeeById">
+        delete
+        from employee
+        where id = #{dsadsa}
+    </delete>
+
+    <!--返回的是集合对应多条记录，要写集合中元素的类型-->
+    <select id="selectAllEmployees" resultType="employee">
+        select *
+        from employee
+    </select>
+
+    <!--返回一个map对应一条记录，键是列名，值是列值-->
+    <select id="selectOneEmpByIdAndReturnMap" resultType="map">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
+    <!--返回一个map对应多条记录，键是主键，值是记录对应的bean-->
+    <select id="selectAllEmployeesAndReturnMap" resultType="employee">
+        select *
+        from employee
+    </select>
+</mapper>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <properties resource="jdbc.properties"></properties>
+
+    <settings>
+        <!--        <setting name="mapUnderscoreToCamelCase" value="true"/>-->
+        <!--将java中的null值设置为数据库的null值，默认为JdbcType类中的other-->
+        <setting name="jdbcTypeForNull" value="NULL"/>
+        <!--延迟加载-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!--开启时，任一方法的调用都会加载该对象的所有延迟加载属性。 否则，每个延迟加载属性会按需加载-->
+        <setting name="aggressiveLazyLoading" value="false"/>
+    </settings>
+
+    <typeAliases>
+        <package name="cn.hhx.mybatis.bean"/>
+    </typeAliases>
+
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+
+    <mappers>
+        <mapper resource="mappers/employeeDaoMapper.xml"/>
+        <mapper resource="mappers/departmentDaoMapper.xml"/>
+    </mappers>
+</configuration>

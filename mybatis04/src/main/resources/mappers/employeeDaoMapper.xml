@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hhx.mybatis.dao.EmployeeDao">
+
+    <resultMap id="myEmp" type="cn.hhx.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="employee_name" property="employeeName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+    </resultMap>
+
+    <select id="getEmpById" resultMap="myEmp">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
+    <!--
+        if:判断
+        choose(when,otherwise):相当于switch
+        trim(where,set)
+        foreach
+        -->
+
+    <!--查询员工-->
+    <select id="getEmpByConditionIf" resultMap="myEmp">
+        select *
+        from employee
+        <!--where,会自动去掉and的拼装, 但是只会去掉第一个and-->
+        <where>
+            <!--判断,从参数中取值-->
+            <if test="id!=null">
+                id=#{id}
+            </if>
+            <!--特殊符号要转义，比如&-->
+            <!--拼装有问题-->
+            <if test="employeeName!=null and employeeName!=&quot;&quot;">
+                and employee_name like #{employeeName}
+            </if>
+            <if test="email!=null &amp;&amp; email.trim()!=&quot;&quot;">
+                and email like #{email}
+            </if>
+            <if test="gender == 0 or gender == 1">
+                and gender like #{gender}
+            </if>
+
+        </where>
+    </select>
+
+    <select id="getEmpByConditionTrim" resultMap="myEmp">
+        select *
+        from employee
+        where
+        <!--prefix="":拼串后加前缀
+            suffix="":拼串后加后缀
+            prefixOverrides="":去掉前缀
+            suffixOverrides="":去掉后缀
+            trim标签自定义截取规则-->
+
+        <!--if-->
+        <trim prefix="" suffix="" prefixOverrides="and" suffixOverrides="and">
+            <!--判断,从参数中取值-->
+            <if test="id!=null">
+                id=#{id}
+            </if>
+            <!--特殊符号要转义，比如&-->
+            <!--拼装有问题-->
+            <if test="employeeName!=null and employeeName!=&quot;&quot;">
+                and employee_name like #{employeeName}
+            </if>
+            <if test="email!=null &amp;&amp; email.trim()!=&quot;&quot;">
+                and email like #{email}
+            </if>
+            <if test="gender == 1 or gender == 0">
+                and gender = #{gender}
+            </if>
+        </trim>
+
+    </select>
+
+    <!--choose-->
+    <select id="getEmpByConditionChoose" resultMap="myEmp">
+        select * from employee
+        <where>
+            <!--带了哪个就用哪个-->
+            <choose>
+                <!--相当于case break-->
+                <when test="id!=null">
+                    id = #{id}
+                </when>
+                <when test="employeeName!=null">
+                    employee_name = #{employeeName}
+                </when>
+                <when test="email!=null">
+                    email = #{email}
+                </when>
+                <!--相当于default-->
+                <otherwise>
+                    gender = 0
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <!--set-->
+    <update id="updateEmp">
+        update employee
+        <trim prefix="set" suffixOverrides=",">
+            <if test="employeeName != null">
+                employee_name = #{employeeName},
+            </if>
+            <if test="gender  != null">
+                gender = #{gender},
+            </if>
+            <if test="employeeName != null">
+                email = #{email}
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!--foreach查询-->
+    <select id="getEmpForEach" resultMap="myEmp">
+        select * from employee where id in
+        <!--
+            collection:指定要遍历的集合
+            list类型的参数会封装到map中，map的key就是list
+            item：将遍历出的元素赋值给指定的变量
+            separator:每个元素的分隔符
+            open:遍历出集合的开头
+            close:遍历出集合的结尾
+            index:list是索引，item是当前值
+                    map是map的key，item是map的值
+            #{变量名}就能取出变量的值
+            -->
+        <foreach collection="idList" item="item_id" separator="," open="(" close=")">
+            #{item_id}
+        </foreach>
+    </select>
+
+    <!--foreach保存-->
+    <insert id="addEmps">
+        insert into employee(<include refid="insertColumn"><property name="test" value="hhx"/></include>)
+        values
+        <foreach collection="empList" item="emp" separator=",">
+            (#{emp.employeeName},#{emp.gender},#{emp.email})
+        </foreach>
+    </insert>
+
+    <!--两个内置参数
+        不只有方法传递过来的参数可以被取值
+        mybatis默认有两个内置参数
+        _parameter:
+            单个参数：代表单个参数
+            多个参数：封装被封装成一个map，代表map本身
+        _databaseId:
+            如果配置了databaseProvider标签
+            这就代表了当前数据库的别名-->
+    <select id="getEmpTestInnerParam" resultMap="myEmp">
+        <!--bind标签负责拼串
+            其中#{}不可以在sql也就是下面拼串
+            ${}可以，比如like'%${employeName}%',但是不安全
+            所以我们可以使用bind标签进行拼串
+            也就相当于将传入的参数再做一些处理，赋值给一个变量，再在下面使用这个变量替代原来的变量-->
+        <!--使用了注解，当前上下文是_parameter，emp下的属性都被放在了map中，使用"emp.属性"进行调用，如果没有加注解
+            直接"属性"就可以调用-->
+        <bind name="_empName" value="'_'+emp.employeeName+'%'"/>
+        <if test="_databaseId=='mysql'">
+            select * from employee
+            <if test="_parameter!=null">
+                where employee_name like #{_empName}
+            </if>
+        </if>
+
+        <if test="_databaseId=='oracle'">
+            select * from employee11111
+            <if test="_parameter!=null">
+                where id = #{id}
+            </if>
+        </if>
+    </select>
+
+    <!--抽取一段sql:
+        sql语句复用
+        include引用
+        include自定义一些属性，sql标签内可以使用-->
+    <sql id="insertColumn">
+        <!--第143行代码-->
+        employee_name, gender, email,${test}
+    </sql>
+</mapper>

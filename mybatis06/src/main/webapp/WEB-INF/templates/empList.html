@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>查询结果</title>
+</head>
+<body>
+<h1 align="center">查询结果为</h1>
+<div align="center">
+    <table border="1">
+        <tr>
+            <th>用户id</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>年龄</th>
+        </tr>
+        <tr th:each="emp:${empList}">
+            <td th:text="${emp.id}"></td>
+            <td th:text="${emp.employeeName}"></td>
+            <td th:text="${emp.gender}"></td>
+            <td th:text="${emp.email}"></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

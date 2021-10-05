@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>转账</title>
+</head>
+<body>
+<h1 align="center">转账界面</h1>
+<div align="center">
+    <form th:action="@{/transfering}">
+        账户<input type="text" name="id1">向账户<input type="text" name="id2">转账<input type="text" name="money">
+        <br/>
+        <input type="submit" value="提交转账">
+    </form>
+</div>
+</body>
+</html>

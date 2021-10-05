@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>转账结果</title>
+</head>
+<body>
+<h1 align="center" th:text="${message}"></h1>
+<div align="center">
+    <table>
+        <tr>
+            <td><a th:href="@{/accountList}">返回首页</a></td>
+            <td><a th:href="@{/transfer}">返回转账页面</a></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
